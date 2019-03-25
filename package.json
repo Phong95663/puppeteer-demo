@@ -4,6 +4,8 @@
   "description": "",
   "main": "crawler.js",
   "dependencies": {
+    "kuroshiro": "^1.1.2",
+    "kuroshiro-analyzer-kuromoji": "^1.1.0",
     "mongoose": "^5.4.19",
     "puppeteer": "^1.13.0"
   },

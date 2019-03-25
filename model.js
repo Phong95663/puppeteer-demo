@@ -6,7 +6,7 @@ let grammarSchema = new mongoose.Schema({
   use: String,
   explain: String,
   examples: [{ ja: String, vi: String }],
-  // titleKana: String,
+  titleKana: String,
 })
 
 let Grammar = mongoose.model('Grammar', grammarSchema);

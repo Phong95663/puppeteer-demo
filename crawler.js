@@ -1,15 +1,21 @@
 const puppeteer = require('puppeteer');
 const mongoose = require('mongoose');
 const Grammar = require('./model');
+const Kuroshiro = require('kuroshiro');
+const analyzer = require('kuroshiro-analyzer-kuromoji');
+const kuroshiro = new Kuroshiro();
+kuroshiro.init(new analyzer());
 
 (async () => {
   const browser = await puppeteer.launch({ headless: false, slowMo: 250, args: ['--start-fullscreen'] });
-  // const browser = await puppeteer.launch({ slowMo: 250 });
+  // const browser = await puppeteer.launch({ slowMo: 250, args: ['--start-fullscreen'] });
   const page = await browser.newPage();
   await page.setViewport({ width: 1800, height: 2400 });
   await page.goto('http://mazii.net/#!/search');
   await page.click('#tab3');
-  const pageSize = 185;
+  await page.click('.box-select>div:nth-child(1)');
+  await page.click('.select-level>div:nth-child(6)');
+  const pageSize = 31;
   for (let i = 0; i < pageSize; i++) {
     console.log(`Page: ${i}`);
     await getData(page);
@@ -66,6 +72,8 @@ const getData = async (page) => {
           examples: examples
         };
       });
+	    let titleKana = await convertTitle(grammar.title);
+	    grammar['titleKana'] = titleKana;
       console.log(grammar);
       insert(grammar);
     } catch (error) {
@@ -76,11 +84,11 @@ const getData = async (page) => {
 
 let insert = (Obj) => {
 
-  const DB_URL = 'mongodb://localhost:27017/puppeteer';
+  const DB_URL = 'mongodb://localhost:27017/jp_grammars_2';
 
   if (mongoose.connection.readyState == 0) { mongoose.connect(DB_URL); }
 
-  let conditions = { title: Obj.title };
+  let conditions = { mean: Obj.mean };
   let options = { upsert: true, new: true, setDefaultsOnInsert: true };
 
   Grammar.findOneAndUpdate(conditions, Obj, options, (err, result) => {
